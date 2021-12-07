@@ -4,9 +4,7 @@ import java.util.Scanner;
 
 public class Stage2 {
 
-	// 처음 맵 정보 입력하고,
-	// 맵 상태 저장할 변수, 맵 출력 함수,
-	// 플레이어 움직이는 함수로 맵 상태 갱신 (예외처리 할 것들도 필요)
+	// 플레이어를 움직이고 맵 상태를 갱신함
 	public static int[][] movePlayer(int[][] mapTale, char key) {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
@@ -54,6 +52,7 @@ public class Stage2 {
 		return mapTale;
 	}
 	
+	// 두 2차원 배열을 비교해서 플레이어 위치가 같은 지 구하는 함수
 	public static boolean playerPositionEquals(int[][] tale1, int[][] tale2)
 	{
 		boolean theSame = false;
@@ -82,6 +81,7 @@ public class Stage2 {
 		return theSame;
 	}
 
+	// 방향키 입력받으면 처리하는 함수
 	public static void inputKey(Scanner scanner, int[][] mapTale) {
 		boolean gameOver = false;
 		// tempMap에 mapTale을 깊은복사
@@ -168,6 +168,8 @@ public class Stage2 {
 		}
 	}
 
+	
+	// 처음에 맵을 설치하는 함수
 	public static int[][] initMap(String input, int row, int column) {
 		int[][] tale = new int[999][999];
 		if (!input.contains("=")) {
