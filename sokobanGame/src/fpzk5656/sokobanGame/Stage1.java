@@ -43,36 +43,11 @@ public class Stage1 {
 	public static void calculate(Scanner scanner) {
 		int horizontal = 0;
 		int vertical = 0;
-		int count = 0;
 		int[][] tale = new int[999][999];
 		int[] horizontalGroup = new int[999];
 		boolean nextStage = false;
 		while (true) {
-			
-			String input = "";
-			
-			if(scanner.findInLine("(?=\\S)") != null)
-			{
-				
-				if(scanner.hasNextLine())
-				{
-					input = scanner.nextLine();
-				}
-				else
-				{
-					break;
-				}
-			}
-			else
-			{
-				break;
-			}
-			
-			
-			
-			
-			
-			
+			String input = scanner.nextLine();
 			
 			if (!input.contains("=")) {
 				System.out.println(input);
@@ -102,22 +77,22 @@ public class Stage1 {
 					char n = input.charAt(i);
 					switch (n) {
 					case '#':
-						tale[i][vertical] = 0;
+						tale[i][vertical] = 0;	// 벽
 						break;
 					case 'O':
-						tale[i][vertical] = 1;
+						tale[i][vertical] = 1;	// 구멍
 						break;
 					case 'o':
-						tale[i][vertical] = 2;
+						tale[i][vertical] = 2;	// 공
 						break;
 					case 'P':
-						tale[i][vertical] = 3;
+						tale[i][vertical] = 3;	// 플레이어
 						break;
 					case '=':
-						tale[i][vertical] = 4;
+						tale[i][vertical] = 4;	// 구분선
 						break;
 					case ' ':
-						tale[i][vertical] = 7; // 예외처리용
+						tale[i][vertical] = 7; // 빈공간
 						break;
 					}
 				}
