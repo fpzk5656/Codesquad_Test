@@ -38,6 +38,7 @@ public class Stage1 {
 		System.out.println("구멍의 수: " + hole);
 		System.out.println("공의 수: " + ball);
 		System.out.printf("플레이어 위치 (%d, %d)\n", playerY, playerX);
+		System.out.printf("\n");
 	}
 
 	public static void calculate(Scanner scanner) {
