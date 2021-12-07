@@ -47,14 +47,49 @@ public class Stage2 {
 			mapTale[aimColumn][aimRow] = mapTale[playerColumn][playerRow];
 			mapTale[playerColumn][playerRow] = tmp[0][0];
 		} else {
-			System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
+			// 원래 플레이어가 이동하려는 위치에 장애물이 있을 경우 경고 표시를 출력하려 했으나, 맵출력할 대랑 순서에 맞지 않아서 제외
+			//System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
 		}
 
 		return mapTale;
 	}
+	
+	public static boolean playerPositionEquals(int[][] tale1, int[][] tale2)
+	{
+		boolean theSame = false;
+		int[] columnGroup = getColumnGroupOfMap(tale1);
+		int row = getRowOfMap(tale1);
+		int playerColumn = 0;
+		int playerRow = 0;
+
+		// 플레이어 위치 구하기
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < columnGroup[i]; j++) {
+				if (tale1[j][i] == 3) {
+					playerColumn = j;
+					playerRow = i;
+				}
+			}
+		}
+		// 플레이어 포지션 비교
+		if(tale1[playerColumn][playerRow] == tale2[playerColumn][playerRow])
+		{
+			int s = tale1[playerColumn][playerRow];
+			int t = tale2[playerColumn][playerRow];
+			int c = s+t;
+			theSame = true;
+		}
+		return theSame;
+	}
 
 	public static void inputKey(Scanner scanner, int[][] mapTale) {
 		boolean gameOver = false;
+		// tempMap에 mapTale을 깊은복사
+		int[][] tempMap = new int[999][999];
+		for(int i = 0; i < tempMap.length; i++)
+		{
+			System.arraycopy(mapTale[i], 0, tempMap[i], 0, mapTale[0].length);
+		}
 		while (true) {
 			System.out.print("SOKOBAN> ");
 			String input = scanner.nextLine();
@@ -66,22 +101,50 @@ public class Stage2 {
 				case 'w':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					if(playerPositionEquals(mapTale, tempMap))
+					{
+						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
+					}
+					else
+					{
 					System.out.println(Character.toUpperCase(key) + ": 위로 이동합니다.");
+					}
 					break;
 				case 's':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					if(playerPositionEquals(mapTale, tempMap))
+					{
+						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
+					}
+					else
+					{
 					System.out.println(Character.toUpperCase(key) + ": 아래로 이동합니다.");
+					}
 					break;
 				case 'a':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					if(playerPositionEquals(mapTale, tempMap))
+					{
+						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
+					}
+					else
+					{
 					System.out.println(Character.toUpperCase(key) + ": 왼쪽으로 이동합니다.");
+					}
 					break;
 				case 'd':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					if(playerPositionEquals(mapTale, tempMap))
+					{
+						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
+					}
+					else
+					{
 					System.out.println(Character.toUpperCase(key) + ": 오른쪽으로 이동합니다.");
+					}
 					break;
 				case 'q':
 					System.out.println("게임을 종료 합니다.");
@@ -89,11 +152,15 @@ public class Stage2 {
 					gameOver = true;
 					break;
 				default:
-					System.out.println(Character.toUpperCase(key) + " (!경고) 해당 명령을 수행할 수 없습니다!");
+					resultMap(mapTale);
+					System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
 					System.out.print("\n");
 					break;
 				}
-				//resultMap(mapTale);
+				for(int j = 0; j < tempMap.length; j++)
+				{
+					System.arraycopy(mapTale[j], 0, tempMap[j], 0, mapTale[0].length);
+				}
 			}
 			if (gameOver) {
 				break;
