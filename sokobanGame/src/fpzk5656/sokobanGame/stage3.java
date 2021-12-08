@@ -9,7 +9,7 @@ import java.io.IOException;
 public class stage3 {
 
 	// 플레이어를 움직이고 맵 상태를 갱신함
-	public static int[][] movePlayer(int[][] mapTale, char key) {
+	public static int[][] movePlayer(int[][] mapTale, char key) throws IOException {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
 		int playerColumn = 0;
@@ -42,91 +42,101 @@ public class stage3 {
 			aimColumn++;
 			break;
 		}
-		//==================
-		// 스왑 해당 위치가 ' '즉 7일 경우에만 플레이어가 이동할 수 있다.
-//		if (mapTale[aimColumn][aimRow] == 7) {
-//			int[][] tmp = new int[1][1];
-//			tmp[0][0] = mapTale[aimColumn][aimRow];
-//			mapTale[aimColumn][aimRow] = mapTale[playerColumn][playerRow];
-//			mapTale[playerColumn][playerRow] = tmp[0][0];
-//		} else {
-//			// 원래 플레이어가 이동하려는 위치에 장애물이 있을 경우 경고 표시를 출력하려 했으나, 맵출력할 대랑 순서에 맞지 않아서 제외
-//			// System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수
-//			// 없습니다!");
-//		}
-		//=====================
 		
 		// 플레이어가 빈공간위에 서있을 경우
 		boolean goalIsCover = false;
-		if(mapTale[playerColumn][playerRow] == 6)goalIsCover = true;
-		
-		switch(mapTale[aimColumn][aimRow])
-		{
-			case 1:	//빈 구멍
-				// 플레이어가 빈구멍에 도착 하면 빈 구멍은 플레이어가 있는동안 모습을 감춘다.
-				mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
-				mapTale[aimColumn][aimRow] = 6;
-				break;
-			case 2: //작은 공
-				// 플레이어가 작은 공 위치에 도착했을 때
-				// 작은공이 밀려나는 방향의 위치가 7 이거나 1일 때만 작은공은 그곳으로 이동한다
-				// 만약 1이면 작은공이 이동한 곳에 9가 나타난다 9는 '0'모양임
-				// 이 때 맵을 검토해서 1이 전부 없다면 다음 스테이지로 넘어간다.
-				int moveCol = aimColumn;
-				int moveRow = aimRow;
-				if(aimColumn - playerColumn > 0)moveCol++;
-				else if(aimColumn - playerColumn < 0)moveCol--;
-				else if(aimRow - playerRow > 0)moveRow++;
-				else if(aimRow - playerRow < 0)moveRow--;
-				
-				if(mapTale[moveCol][moveRow] == 7)
-				{
-					mapTale[moveCol][moveRow] = 2;
-					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
-					mapTale[aimColumn][aimRow] = 3;
-				}
-				else if(mapTale[moveCol][moveRow] == 1)
-				{
-					mapTale[moveCol][moveRow] = 9;
-					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
-					mapTale[aimColumn][aimRow] = 3;
-					// 맵을 검토하고 다음 스테이지로 넘어가는 함수
-					
-				}
-				break;
-			case 7:	//빈 공간
+		if (mapTale[playerColumn][playerRow] == 6)
+			goalIsCover = true;
+
+		switch (mapTale[aimColumn][aimRow]) {
+		case 1: // 빈 구멍
+			// 플레이어가 빈구멍에 도착 하면 빈 구멍은 플레이어가 있는동안 모습을 감춘다.
+			mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
+			mapTale[aimColumn][aimRow] = 6;
+			break;
+		case 2: // 작은 공
+			// 플레이어가 작은 공 위치에 도착했을 때
+			// 작은공이 밀려나는 방향의 위치가 7 이거나 1일 때만 작은공은 그곳으로 이동한다
+			// 만약 1이면 작은공이 이동한 곳에 9가 나타난다 9는 '0'모양임
+			// 이 때 맵을 검토해서 1이 전부 없다면 다음 스테이지로 넘어간다.
+			int moveCol = aimColumn;
+			int moveRow = aimRow;
+			if (aimColumn - playerColumn > 0)
+				moveCol++;
+			else if (aimColumn - playerColumn < 0)
+				moveCol--;
+			else if (aimRow - playerRow > 0)
+				moveRow++;
+			else if (aimRow - playerRow < 0)
+				moveRow--;
+
+			if (mapTale[moveCol][moveRow] == 7) {
+				mapTale[moveCol][moveRow] = 2;
+				mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
 				mapTale[aimColumn][aimRow] = 3;
-				mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
-				break;
-			case 9:	//9를 밀어내면 9가 있던 자리에 1(빈구멍)이 되고, 방향으로는 2가 생긴다.
-					//물론 밀어내려는 방향 쪽이 7이거나 1일 때만 가능하다
-				int moveCol2 = aimColumn;
-				int moveRow2 = aimRow;
-				if(aimColumn - playerColumn > 0)moveCol2++;
-				else if(aimColumn - playerColumn < 0)moveCol2--;
-				else if(aimRow - playerRow > 0)moveRow2++;
-				else if(aimRow - playerRow < 0)moveRow2--;
+			} else if (mapTale[moveCol][moveRow] == 1) {
+				mapTale[moveCol][moveRow] = 9;
+				mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
+				mapTale[aimColumn][aimRow] = 3;
 				
-				if(mapTale[moveCol2][moveRow2] == 7)
-				{
-					mapTale[moveCol2][moveRow2] = 2;
-					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
-					mapTale[aimColumn][aimRow] = 6;
-				}
-				else if(mapTale[moveCol2][moveRow2] == 1)
-				{
-					mapTale[moveCol2][moveRow2] = 9;
-					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
-					mapTale[aimColumn][aimRow] = 6;
-					// 맵을 검토하고 다음 스테이지로 넘어가는 함수
-					
-					
-				}
-				break;
-			
+				//여기가 클리어 포인트
+				stageClear(mapTale);
+			}
+			break;
+		case 7: // 빈 공간
+			mapTale[aimColumn][aimRow] = 3;
+			mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
+			break;
+		case 9: // 9를 밀어내면 9가 있던 자리에 1(빈구멍)이 되고, 방향으로는 2가 생긴다.
+				// 물론 밀어내려는 방향 쪽이 7이거나 1일 때만 가능하다
+			int moveCol2 = aimColumn;
+			int moveRow2 = aimRow;
+			if (aimColumn - playerColumn > 0)
+				moveCol2++;
+			else if (aimColumn - playerColumn < 0)
+				moveCol2--;
+			else if (aimRow - playerRow > 0)
+				moveRow2++;
+			else if (aimRow - playerRow < 0)
+				moveRow2--;
+
+			if (mapTale[moveCol2][moveRow2] == 7) {
+				mapTale[moveCol2][moveRow2] = 2;
+				mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
+				mapTale[aimColumn][aimRow] = 6;
+			} else if (mapTale[moveCol2][moveRow2] == 1) {
+				mapTale[moveCol2][moveRow2] = 9;
+				mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
+				mapTale[aimColumn][aimRow] = 6;
+			}
+			break;
+
 		}
 
 		return mapTale;
+	}
+
+	// 스테이지 클리어 함수
+	public static void stageClear(int[][] mapTale) throws IOException {
+		int[] columnGroup = getColumnGroupOfMap(mapTale);
+		int row = getRowOfMap(mapTale);
+		int ballCount = 0; 
+
+		// 플레이어 위치 구하기
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < columnGroup[i]; j++) {
+				if (mapTale[j][i] == 2) ballCount++;
+			}
+		}
+		
+		if(ballCount == 0)
+		nextStage();
+	}
+
+	// 다음 스테이지 이동 함수
+	public static void nextStage() throws IOException {
+		stageNumber++;
+		resetGame();
 	}
 
 	// 두 2차원 배열을 비교해서 플레이어 위치가 같은 지 구하는 함수
@@ -155,14 +165,12 @@ public class stage3 {
 		}
 		return theSame;
 	}
-	
-	public static int[][] deepCopy(int[][] mapTale)
-	{
+
+	// 깊은 복사 함수
+	public static int[][] deepCopy(int[][] mapTale) {
 		int[][] tempTale = new int[999][999];
-		for(int i = 0; i < mapTale.length; i++)
-		{
-			for(int j = 0; j < mapTale[i].length;j++)
-			{
+		for (int i = 0; i < mapTale.length; i++) {
+			for (int j = 0; j < mapTale[i].length; j++) {
 				tempTale[i][j] = mapTale[i][j];
 			}
 		}
@@ -171,11 +179,11 @@ public class stage3 {
 
 	// 방향키 입력받으면 처리하는 함수
 	public static void inputKey(Scanner scanner, int[][] mapTale) throws IOException {
-		boolean gameOver = false;
+		// boolean gameOver = false;
 		// tempMap에 mapTale을 깊은복사
 		int[][] tempMap = new int[999][999];
 		tempMap = deepCopy(mapTale);
-		
+
 		// 입력이 반복 되도록(q키를 누르기 전까진)
 		while (true) {
 			System.out.print("SOKOBAN> ");
@@ -227,10 +235,8 @@ public class stage3 {
 					gameOver = true;
 					break;
 				case 'r':
-					// 스테이지를 리셋해야됨.
-					// 리셋 함수 제작
-					int stageNum = 1;
-					resetGame(1);
+					// 스테이지를 리셋하는 함수
+					resetGame();
 					break;
 				default:
 					resultMap(mapTale);
@@ -245,12 +251,11 @@ public class stage3 {
 			}
 		}
 	}
-	
+
 	// 스테이지를 리셋하는 함수
-	public static void resetGame(int stageNum)throws IOException
-	{
+	public static void resetGame() throws IOException {
 		String mapInfo = readFile("C:\\Users\\admin\\Desktop\\CodesquadTest\\map.txt");
-		calculate(mapInfo, stageNum);	//calculate(mapInfo, stageNum) 이렇게 만들어야 될 것 같다.
+		calculate(mapInfo); // calculate(mapInfo, stageNum) 이렇게 만들어야 될 것 같다.
 	}
 
 	// 처음에 맵을 설치하는 함수
@@ -260,7 +265,7 @@ public class stage3 {
 		if (!input.contains("=")) {
 			System.out.println(input);
 			if (input.contains("Stage")) {
-				System.out.printf("\n");	// Stage가 있을 경우 출력하고 한칸 띄우기
+				System.out.printf("\n"); // Stage가 있을 경우 출력하고 한칸 띄우기
 
 			}
 		}
@@ -313,9 +318,10 @@ public class stage3 {
 	}
 
 	// 맵 결과 표시
-	public static void resultMap(int[][] mapTale) {
+	public static void resultMap(int[][] mapTale) throws IOException {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
+		int ballCount = 0;
 		boolean inGame = false;
 
 		String line = "";
@@ -332,6 +338,7 @@ public class stage3 {
 					break;
 				case 2:
 					line += 'o'; // 공
+					ballCount++;
 					break;
 				case 3:
 					line += 'P'; // 플레이어
@@ -350,36 +357,38 @@ public class stage3 {
 					break;
 				}
 			}
+			// 저장되지 않은 2차원 배열의 인덱스 내용까지 출력되지 않도록 예외처리하는 것
 			if (line == "" && inGame == true) {
 				break;
 			}
 			System.out.println(line);
+			// 맵을 검토하고 다음 스테이지로 넘어가는 함수
+			//if(ballCount == 0)stageClear();
 		}
 	}
 
-	public static void calculate(String input, int stageNum) throws IOException {
+	public static void calculate(String input) throws IOException {
 		// 여기서 "Stage"+ stageNum을 기준으로 구분선까지 잘라내기
 		String[] stageMap = input.split("=");
-		
-		
-		//========
-		String[] lines = stageMap[stageNum].split("\n");
-		//String[] lines = input.split("\n");
-		
-		// 맵 정보를 잘라내서 행과 열의 개수를 파악하는 계산
-		int count = 0;
-		for (int i = 0; i < lines.length; i++) {
-			if (count < lines[i].length()) {
-				count = lines[i].length();
-			}
-		}
-		// 맵 타일 제작 및 할당
-		int[][] mapTale = new int[lines.length][count];
-		mapTale = initMap(stageMap[stageNum]);
-		//mapTale = initMap(input);
 
-		Scanner scanner = new Scanner(System.in);
-		inputKey(scanner, mapTale);
+		if (stageNumber >= stageMap.length) {
+			gameOver = true;
+			System.out.println("전체 게임을 클리어하셨습니다!" + "\n 축하드립니다!");
+		} else {
+			String[] lines = stageMap[stageNumber].split("\n");
+			int count = 0;
+			for (int i = 0; i < lines.length; i++) {
+				if (count < lines[i].length()) {
+					count = lines[i].length();
+				}
+			}
+			// 맵 타일 제작 및 할당
+			int[][] mapTale = new int[lines.length][count];
+			mapTale = initMap(stageMap[stageNumber]);
+
+			Scanner scanner = new Scanner(System.in);
+			inputKey(scanner, mapTale);
+		}
 	}
 
 	public static String readFile(String fileName) throws IOException {
@@ -400,9 +409,12 @@ public class stage3 {
 		}
 	}
 
+	static int stageNumber = 0;
+	static boolean gameOver = false;
+
 	public static void main(String[] args) throws IOException {
-		
+
 		String mapInfo = readFile("C:\\Users\\admin\\Desktop\\CodesquadTest\\map.txt");
-		calculate(mapInfo, 1);
+		calculate(mapInfo);
 	}
 }
