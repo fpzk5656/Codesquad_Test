@@ -5,7 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class stage3 {
+public class Stage4 {
 
 	// 플레이어 위치 구하는 함수
 	public static int playerPosition(int[][] mapTale, boolean isColumn) {
@@ -198,6 +198,59 @@ public class stage3 {
 		}
 	}
 	
+	// 세이브 슬롯에 저장하는 함수
+	public static void saveDataWork(int index, String str ,int[][] mapTale)
+	{
+		if(index > 0)
+		{	// 슬롯넘버를 구한다
+			int slotNum = Character.getNumericValue(str.charAt(index-1));
+			if(slotNum > 0 && slotNum <6)
+			{	// 진행상황을 3차원 배열에 저장한다
+				System.out.println(slotNum + "번 세이브에 진행상황을 저장 합니다.");
+				for(int j = 0; j < mapTale.length; j++)
+				{
+					for(int k = 0; k < mapTale[j].length; k++)
+					{
+						saveData[slotNum][j][k] = mapTale[j][k];
+					}
+				}
+				saveExistence[slotNum] = true;	// 해당 슬롯에 세이브 데이터가 존재함을 boolean으로 갱신
+				saveData[0][slotNum][slotNum] = turnNumber;	// 해당 세이브 데이터의 턴 수를 저장한다 
+			}
+		}
+	}
+	
+	// 저장된 데이터를 불러오는 함수
+	public static int[][] loadDataWork(int index, String str,int[][] mapTale)
+	{
+		int[][] loadMapTale = new int[999][999];
+		if(index > 0)
+		{
+			int slotNum = Character.getNumericValue(str.charAt(index-1));
+			if(saveExistence[slotNum] == false)
+			{
+				// 저장된 슬롯이 없으면, 인자로 받아온 기존 데이터를 되돌려준다
+				System.out.println("슬롯에 저장된 데이터가 없습니다.");
+				return mapTale;
+			}
+			// 저장된 데이터가 있다면, 새로 선언한 2차원 배열에 저장해서 반환 해준다
+			System.out.println(slotNum + "번 세이브에서 진행상황을 불러옵니다.");
+			if(slotNum > 0 && slotNum <6)
+			{
+				for(int j = 0; j < mapTale.length; j++)
+				{
+					for(int k = 0; k < mapTale[j].length; k++)
+					{
+						loadMapTale[j][k] = saveData[slotNum][j][k];
+					}
+				}
+				turnNumber = saveData[0][slotNum][slotNum];
+				return loadMapTale;
+			}
+		}
+		return mapTale;
+	}
+	
 	// 방향키 입력받으면 처리하는 함수
 	public static void inputKey(Scanner scanner, int[][] mapTale) throws IOException {
 		int[][] tempMap = new int[999][999];
@@ -226,6 +279,15 @@ public class stage3 {
 					break;
 				case 'r':
 					resetGame();
+					break;
+				case 'S':
+					saveDataWork(i,input,mapTale);	// 세이브 슬롯에 저장
+					break;
+				case 'L':
+					// 세이브 데이터를 불러오기
+					mapTale = loadDataWork(i,input,mapTale);
+					resultMap(mapTale);
+					System.out.println("턴수: " + turnNumber);
 					break;
 				default:
 					resultMap(mapTale);
@@ -406,6 +468,8 @@ public class stage3 {
 	// 전역 변수
 	static int stageNumber = 0;
 	static int turnNumber = 0;
+	static int[][][] saveData = new int[6][999][999]; 
+	static boolean [] saveExistence = new boolean[6];
 	static boolean gameOver = false;
 	// main
 	public static void main(String[] args) throws IOException {
