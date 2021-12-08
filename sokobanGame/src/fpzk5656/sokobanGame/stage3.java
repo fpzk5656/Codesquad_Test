@@ -18,7 +18,7 @@ public class stage3 {
 		// 플레이어 위치 구하기
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < columnGroup[i]; j++) {
-				if (mapTale[j][i] == 3) {
+				if (mapTale[j][i] == 3 || mapTale[j][i] == 6) {
 					playerColumn = j;
 					playerRow = i;
 				}
@@ -42,16 +42,88 @@ public class stage3 {
 			aimColumn++;
 			break;
 		}
-		// 스왑
-		if (mapTale[aimColumn][aimRow] == 7) {
-			int[][] tmp = new int[1][1];
-			tmp[0][0] = mapTale[aimColumn][aimRow];
-			mapTale[aimColumn][aimRow] = mapTale[playerColumn][playerRow];
-			mapTale[playerColumn][playerRow] = tmp[0][0];
-		} else {
-			// 원래 플레이어가 이동하려는 위치에 장애물이 있을 경우 경고 표시를 출력하려 했으나, 맵출력할 대랑 순서에 맞지 않아서 제외
-			// System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수
-			// 없습니다!");
+		//==================
+		// 스왑 해당 위치가 ' '즉 7일 경우에만 플레이어가 이동할 수 있다.
+//		if (mapTale[aimColumn][aimRow] == 7) {
+//			int[][] tmp = new int[1][1];
+//			tmp[0][0] = mapTale[aimColumn][aimRow];
+//			mapTale[aimColumn][aimRow] = mapTale[playerColumn][playerRow];
+//			mapTale[playerColumn][playerRow] = tmp[0][0];
+//		} else {
+//			// 원래 플레이어가 이동하려는 위치에 장애물이 있을 경우 경고 표시를 출력하려 했으나, 맵출력할 대랑 순서에 맞지 않아서 제외
+//			// System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수
+//			// 없습니다!");
+//		}
+		//=====================
+		
+		// 플레이어가 빈공간위에 서있을 경우
+		boolean goalIsCover = false;
+		if(mapTale[playerColumn][playerRow] == 6)goalIsCover = true;
+		
+		switch(mapTale[aimColumn][aimRow])
+		{
+			case 1:	//빈 구멍
+				// 플레이어가 빈구멍에 도착 하면 빈 구멍은 플레이어가 있는동안 모습을 감춘다.
+				mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
+				mapTale[aimColumn][aimRow] = 6;
+				break;
+			case 2: //작은 공
+				// 플레이어가 작은 공 위치에 도착했을 때
+				// 작은공이 밀려나는 방향의 위치가 7 이거나 1일 때만 작은공은 그곳으로 이동한다
+				// 만약 1이면 작은공이 이동한 곳에 9가 나타난다 9는 '0'모양임
+				// 이 때 맵을 검토해서 1이 전부 없다면 다음 스테이지로 넘어간다.
+				int moveCol = aimColumn;
+				int moveRow = aimRow;
+				if(aimColumn - playerColumn > 0)moveCol++;
+				else if(aimColumn - playerColumn < 0)moveCol--;
+				else if(aimRow - playerRow > 0)moveRow++;
+				else if(aimRow - playerRow < 0)moveRow--;
+				
+				if(mapTale[moveCol][moveRow] == 7)
+				{
+					mapTale[moveCol][moveRow] = 2;
+					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
+					mapTale[aimColumn][aimRow] = 3;
+				}
+				else if(mapTale[moveCol][moveRow] == 1)
+				{
+					mapTale[moveCol][moveRow] = 9;
+					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
+					mapTale[aimColumn][aimRow] = 3;
+					// 맵을 검토하고 다음 스테이지로 넘어가는 함수
+					
+				}
+				break;
+			case 7:	//빈 공간
+				mapTale[aimColumn][aimRow] = 3;
+				mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
+				break;
+			case 9:	//9를 밀어내면 9가 있던 자리에 1(빈구멍)이 되고, 방향으로는 2가 생긴다.
+					//물론 밀어내려는 방향 쪽이 7이거나 1일 때만 가능하다
+				int moveCol2 = aimColumn;
+				int moveRow2 = aimRow;
+				if(aimColumn - playerColumn > 0)moveCol2++;
+				else if(aimColumn - playerColumn < 0)moveCol2--;
+				else if(aimRow - playerRow > 0)moveRow2++;
+				else if(aimRow - playerRow < 0)moveRow2--;
+				
+				if(mapTale[moveCol2][moveRow2] == 7)
+				{
+					mapTale[moveCol2][moveRow2] = 2;
+					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
+					mapTale[aimColumn][aimRow] = 6;
+				}
+				else if(mapTale[moveCol2][moveRow2] == 1)
+				{
+					mapTale[moveCol2][moveRow2] = 9;
+					mapTale[playerColumn][playerRow] = goalIsCover? 1 : 7;
+					mapTale[aimColumn][aimRow] = 6;
+					// 맵을 검토하고 다음 스테이지로 넘어가는 함수
+					
+					
+				}
+				break;
+			
 		}
 
 		return mapTale;
@@ -267,8 +339,14 @@ public class stage3 {
 				case 4:
 					line += '='; // 구분선
 					break;
+				case 6:
+					line += 'P';
+					break;
 				case 7:
 					line += ' '; // 빈공간
+					break;
+				case 9:
+					line += '0'; // 골인 상태
 					break;
 				}
 			}
@@ -285,7 +363,7 @@ public class stage3 {
 		
 		
 		//========
-		String[] lines = stageMap[stageNum-1].split("\n");
+		String[] lines = stageMap[stageNum].split("\n");
 		//String[] lines = input.split("\n");
 		
 		// 맵 정보를 잘라내서 행과 열의 개수를 파악하는 계산
@@ -297,7 +375,7 @@ public class stage3 {
 		}
 		// 맵 타일 제작 및 할당
 		int[][] mapTale = new int[lines.length][count];
-		mapTale = initMap(stageMap[stageNum-1]);
+		mapTale = initMap(stageMap[stageNum]);
 		//mapTale = initMap(input);
 
 		Scanner scanner = new Scanner(System.in);
