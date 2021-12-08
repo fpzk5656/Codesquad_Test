@@ -80,7 +80,7 @@ public class stage3 {
 				mapTale[aimColumn][aimRow] = 3;
 				
 				//여기가 클리어 포인트
-				stageClear(mapTale);
+				//stageClear(mapTale);
 			}
 			break;
 		case 7: // 빈 공간
@@ -117,12 +117,12 @@ public class stage3 {
 	}
 
 	// 스테이지 클리어 함수
-	public static void stageClear(int[][] mapTale) throws IOException {
+	public static void checkStageClear(int[][] mapTale) throws IOException {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
 		int ballCount = 0; 
 
-		// 플레이어 위치 구하기
+		// 볼 카운트 점검
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < columnGroup[i]; j++) {
 				if (mapTale[j][i] == 2) ballCount++;
@@ -135,6 +135,7 @@ public class stage3 {
 
 	// 다음 스테이지 이동 함수
 	public static void nextStage() throws IOException {
+		System.out.printf("스테이지 %d를 클리어하였습니다.",stageNumber + 1);
 		stageNumber++;
 		resetGame();
 	}
@@ -196,6 +197,7 @@ public class stage3 {
 				case 'w':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					//stageClear(mapTale);
 					if (playerPositionEquals(mapTale, tempMap)) {
 						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
 					} else {
@@ -205,6 +207,7 @@ public class stage3 {
 				case 's':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					//stageClear(mapTale);
 					if (playerPositionEquals(mapTale, tempMap)) {
 						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
 					} else {
@@ -214,6 +217,7 @@ public class stage3 {
 				case 'a':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					//stageClear(mapTale);
 					if (playerPositionEquals(mapTale, tempMap)) {
 						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
 					} else {
@@ -223,6 +227,7 @@ public class stage3 {
 				case 'd':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
+					//stageClear(mapTale);
 					if (playerPositionEquals(mapTale, tempMap)) {
 						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
 					} else {
@@ -246,6 +251,7 @@ public class stage3 {
 				}
 				tempMap = deepCopy(mapTale);
 			}
+			checkStageClear(mapTale);
 			if (gameOver) {
 				break;
 			}
