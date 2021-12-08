@@ -192,7 +192,7 @@ public class stage3 {
 			System.out.println(input);
 			for (int i = 0; i < input.length(); i++) {
 				char key = input.charAt(i);
-
+					//여기다가 두 함수 몰아놓기 쌉가능하고
 				switch (key) {
 				case 'w':
 					mapTale = movePlayer(mapTale, key);
@@ -251,6 +251,8 @@ public class stage3 {
 				}
 				tempMap = deepCopy(mapTale);
 			}
+			turnNumber++;
+			System.out.println("턴수: " + turnNumber);
 			checkStageClear(mapTale);
 			if (gameOver) {
 				break;
@@ -260,6 +262,7 @@ public class stage3 {
 
 	// 스테이지를 리셋하는 함수
 	public static void resetGame() throws IOException {
+		turnNumber = 0;
 		String mapInfo = readFile("C:\\Users\\admin\\Desktop\\CodesquadTest\\map.txt");
 		calculate(mapInfo); // calculate(mapInfo, stageNum) 이렇게 만들어야 될 것 같다.
 	}
@@ -416,6 +419,7 @@ public class stage3 {
 	}
 
 	static int stageNumber = 0;
+	static int turnNumber = 0;
 	static boolean gameOver = false;
 
 	public static void main(String[] args) throws IOException {
