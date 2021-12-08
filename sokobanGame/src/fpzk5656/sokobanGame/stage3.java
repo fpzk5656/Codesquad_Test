@@ -8,8 +8,8 @@ import java.io.IOException;
 
 public class stage3 {
 
-	// 플레이어를 움직이고 맵 상태를 갱신함
-	public static int[][] movePlayer(int[][] mapTale, char key) throws IOException {
+	// 플레이어 위치 구하는 함수
+	public static int playerPosition(int[][] mapTale, boolean isColumn) {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
 		int playerColumn = 0;
@@ -24,25 +24,14 @@ public class stage3 {
 				}
 			}
 		}
-		// 들어온 키워드에 따라 플레이어 스왑해주기
-		// 먼저 스왑할 위치 정하기
-		int aimColumn = playerColumn;
-		int aimRow = playerRow;
-		switch (key) {
-		case 'w':
-			aimRow--;
-			break;
-		case 's':
-			aimRow++;
-			break;
-		case 'a':
-			aimColumn--;
-			break;
-		case 'd':
-			aimColumn++;
-			break;
-		}
-		
+		if (isColumn)
+			return playerColumn;
+		else
+			return playerRow;
+	}
+
+	// 각 오브젝트의 상호작용 함수
+	public static int[][] objectsWork(int[][] mapTale, int playerColumn, int playerRow, int aimColumn, int aimRow) {
 		// 플레이어가 빈공간위에 서있을 경우
 		boolean goalIsCover = false;
 		if (mapTale[playerColumn][playerRow] == 6)
@@ -78,9 +67,6 @@ public class stage3 {
 				mapTale[moveCol][moveRow] = 9;
 				mapTale[playerColumn][playerRow] = goalIsCover ? 1 : 7;
 				mapTale[aimColumn][aimRow] = 3;
-				
-				//여기가 클리어 포인트
-				//stageClear(mapTale);
 			}
 			break;
 		case 7: // 빈 공간
@@ -112,6 +98,30 @@ public class stage3 {
 			break;
 
 		}
+		return mapTale;
+	}
+
+	// 플레이어를 움직이고 맵 상태를 갱신하는 함수
+	public static int[][] movePlayer(int[][] mapTale, char key) throws IOException {
+		int playerColumn = playerPosition(mapTale, true);
+		int playerRow = playerPosition(mapTale, false);
+		int aimColumn = playerColumn;
+		int aimRow = playerRow;
+		switch (key) {
+		case 'w':
+			aimRow--;
+			break;
+		case 's':
+			aimRow++;
+			break;
+		case 'a':
+			aimColumn--;
+			break;
+		case 'd':
+			aimColumn++;
+			break;
+		}
+		mapTale = objectsWork(mapTale, playerColumn, playerRow, aimColumn, aimRow);
 
 		return mapTale;
 	}
@@ -120,22 +130,23 @@ public class stage3 {
 	public static void checkStageClear(int[][] mapTale) throws IOException {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
-		int ballCount = 0; 
+		int ballCount = 0;
 
 		// 볼 카운트 점검
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < columnGroup[i]; j++) {
-				if (mapTale[j][i] == 2) ballCount++;
+				if (mapTale[j][i] == 2)
+					ballCount++;
 			}
 		}
-		
-		if(ballCount == 0)
-		nextStage();
+		// 남은 볼의 개수가 없다면 다음 스테이지로 넘어간다.
+		if (ballCount == 0)
+			nextStage();
 	}
 
 	// 다음 스테이지 이동 함수
 	public static void nextStage() throws IOException {
-		System.out.printf("스테이지 %d를 클리어하였습니다.",stageNumber + 1);
+		System.out.printf("스테이지 %d를 클리어하였습니다.\n", stageNumber + 1);
 		stageNumber++;
 		resetGame();
 	}
@@ -143,25 +154,13 @@ public class stage3 {
 	// 두 2차원 배열을 비교해서 플레이어 위치가 같은 지 구하는 함수
 	public static boolean playerPositionEquals(int[][] tale1, int[][] tale2) {
 		boolean theSame = false;
-		int[] columnGroup = getColumnGroupOfMap(tale1);
-		int row = getRowOfMap(tale1);
 		int playerColumn = 0;
 		int playerRow = 0;
-
-		// 플레이어 위치 구하기
-		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < columnGroup[i]; j++) {
-				if (tale1[j][i] == 3 || tale1[j][i] == 6) {
-					playerColumn = j;
-					playerRow = i;
-				}
-			}
-		}
+		playerColumn = playerPosition(tale1, true);
+		playerRow = playerPosition(tale1, false);
+		
 		// 플레이어 포지션 비교
 		if (tale1[playerColumn][playerRow] == tale2[playerColumn][playerRow]) {
-			int s = tale1[playerColumn][playerRow];
-			int t = tale2[playerColumn][playerRow];
-			int c = s + t;
 			theSame = true;
 		}
 		return theSame;
@@ -177,62 +176,49 @@ public class stage3 {
 		}
 		return tempTale;
 	}
-
+	
+	// 움직이는 방향 출력
+	public static void outputDirection(int[][] mapTale, int[][] tempMap, char key) throws IOException
+	{	String direction = "";
+		if (playerPositionEquals(mapTale, tempMap)) {
+			System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
+		} else {
+			turnNumber++;
+			//String direction = "";
+			if (key == 'w')
+				direction = "위";
+			else if (key == 's')
+				direction = "아래";
+			else if (key == 'a')
+				direction = "왼쪽으";
+			else if (key == 'd')
+				direction = "오른쪽으";
+			System.out.printf(Character.toUpperCase(key) + ": %s로 이동합니다.\n", direction);
+			System.out.println("턴수: " + turnNumber);
+			checkStageClear(mapTale);
+		}
+	}
+	
 	// 방향키 입력받으면 처리하는 함수
 	public static void inputKey(Scanner scanner, int[][] mapTale) throws IOException {
-		// boolean gameOver = false;
-		// tempMap에 mapTale을 깊은복사
 		int[][] tempMap = new int[999][999];
 		tempMap = deepCopy(mapTale);
 
-		// 입력이 반복 되도록(q키를 누르기 전까진)
+		// 입력이 반복 되도록(q키를 누르거나 게임이 종료되기 전까진)
 		while (true) {
 			System.out.print("SOKOBAN> ");
 			String input = scanner.nextLine();
 			System.out.println(input);
 			for (int i = 0; i < input.length(); i++) {
 				char key = input.charAt(i);
-					//여기다가 두 함수 몰아놓기 쌉가능하고
 				switch (key) {
 				case 'w':
-					mapTale = movePlayer(mapTale, key);
-					resultMap(mapTale);
-					//stageClear(mapTale);
-					if (playerPositionEquals(mapTale, tempMap)) {
-						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
-					} else {
-						System.out.println(Character.toUpperCase(key) + ": 위로 이동합니다.");
-					}
-					break;
 				case 's':
-					mapTale = movePlayer(mapTale, key);
-					resultMap(mapTale);
-					//stageClear(mapTale);
-					if (playerPositionEquals(mapTale, tempMap)) {
-						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
-					} else {
-						System.out.println(Character.toUpperCase(key) + ": 아래로 이동합니다.");
-					}
-					break;
 				case 'a':
-					mapTale = movePlayer(mapTale, key);
-					resultMap(mapTale);
-					//stageClear(mapTale);
-					if (playerPositionEquals(mapTale, tempMap)) {
-						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
-					} else {
-						System.out.println(Character.toUpperCase(key) + ": 왼쪽으로 이동합니다.");
-					}
-					break;
 				case 'd':
 					mapTale = movePlayer(mapTale, key);
 					resultMap(mapTale);
-					//stageClear(mapTale);
-					if (playerPositionEquals(mapTale, tempMap)) {
-						System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
-					} else {
-						System.out.println(Character.toUpperCase(key) + ": 오른쪽으로 이동합니다.");
-					}
+					outputDirection(mapTale, tempMap, key);
 					break;
 				case 'q':
 					System.out.println("게임을 종료 합니다.");
@@ -240,20 +226,15 @@ public class stage3 {
 					gameOver = true;
 					break;
 				case 'r':
-					// 스테이지를 리셋하는 함수
 					resetGame();
 					break;
 				default:
 					resultMap(mapTale);
 					System.out.println(Character.toUpperCase(key) + ": (!경고) 해당 명령을 수행할 수 없습니다!");
-					System.out.print("\n");
 					break;
 				}
 				tempMap = deepCopy(mapTale);
 			}
-			turnNumber++;
-			System.out.println("턴수: " + turnNumber);
-			checkStageClear(mapTale);
 			if (gameOver) {
 				break;
 			}
@@ -267,20 +248,12 @@ public class stage3 {
 		calculate(mapInfo); // calculate(mapInfo, stageNum) 이렇게 만들어야 될 것 같다.
 	}
 
-	// 처음에 맵을 설치하는 함수
-	public static int[][] initMap(String input) {
-		int[][] tale = new int[999][999];
-		// ===구분선이 없을 때만 출력하는 것..그래서 안나오던거였네 전체를 input에 넣어놨으니
-		if (!input.contains("=")) {
-			System.out.println(input);
-			if (input.contains("Stage")) {
-				System.out.printf("\n"); // Stage가 있을 경우 출력하고 한칸 띄우기
-
-			}
-		}
+	// 문자열 상태인 맵의 정보를 2차원 배열에 저장하는 함수
+	public static int[][] setMapInfo(int [][] tale, String str)
+	{
 		// #이 있고나서부터 2차원 배열에 내용물 저장하기 시작
-		if (input.indexOf("#") > -1) {
-			String[] lines = input.split("\n");
+		if (str.indexOf("#") > -1) {
+			String[] lines = str.split("\n");
 
 			// 플레이어 위치 구하기
 			for (int i = 0; i < lines.length; i++) {
@@ -305,11 +278,27 @@ public class stage3 {
 					case ' ':
 						tale[j][i] = 7;
 						break;
+					case '0':
+						tale[j][i] = 9;
+						break;
 					}
 				}
 			}
 		}
-		return tale;
+		return tale; 
+	}
+	
+	// 처음에 맵을 설치하는 함수
+	public static int[][] initMap(String input) {
+		int[][] tale = new int[999][999];
+		// 구분선이 없을 때만 출력하도록
+		if (!input.contains("=")) {
+			System.out.println(input);
+			if (input.contains("Stage")) {
+				System.out.printf("\n"); // Stage가 있을 경우 한줄 출력하고 한칸 띄우기
+			}
+		}
+		return setMapInfo(tale,input);
 	}
 
 	public static int getRowOfMap(int[][] tale) {
@@ -322,15 +311,13 @@ public class stage3 {
 		for (int i = 0; i < tale.length; i++) {
 			result[i] = tale[i].length;// i 번째 행의 원소 개수
 		}
-
 		return result;
 	}
 
-	// 맵 결과 표시
+	// 맵 결과 출력
 	public static void resultMap(int[][] mapTale) throws IOException {
 		int[] columnGroup = getColumnGroupOfMap(mapTale);
 		int row = getRowOfMap(mapTale);
-		int ballCount = 0;
 		boolean inGame = false;
 
 		String line = "";
@@ -347,7 +334,6 @@ public class stage3 {
 					break;
 				case 2:
 					line += 'o'; // 공
-					ballCount++;
 					break;
 				case 3:
 					line += 'P'; // 플레이어
@@ -370,20 +356,21 @@ public class stage3 {
 			if (line == "" && inGame == true) {
 				break;
 			}
-			System.out.println(line);
-			// 맵을 검토하고 다음 스테이지로 넘어가는 함수
-			//if(ballCount == 0)stageClear();
+			System.out.println(line);	// 한 줄씩 출력
 		}
 	}
-
+	
+	// 게임이 동작을 유지할 수 있게 계산하는 함수
 	public static void calculate(String input) throws IOException {
-		// 여기서 "Stage"+ stageNum을 기준으로 구분선까지 잘라내기
+		// "Stage"+ stageNum을 기준으로 구분선을 사이에 두고 잘라서 나눠 저장한다
 		String[] stageMap = input.split("=");
-
+		// stageNumber 나눠 저장한 맵의 개수보다 많아지면 게임 종료 및 클리어
 		if (stageNumber >= stageMap.length) {
 			gameOver = true;
 			System.out.println("전체 게임을 클리어하셨습니다!" + "\n 축하드립니다!");
 		} else {
+			// 맵의 행과 열을 뽑아내서 2차원 배열에 크기에 알맞은 크기의 공간을 확보 한 뒤
+			// initMap을 통해 출력과 맵 정보 저장을 한다.
 			String[] lines = stageMap[stageNumber].split("\n");
 			int count = 0;
 			for (int i = 0; i < lines.length; i++) {
@@ -394,15 +381,15 @@ public class stage3 {
 			// 맵 타일 제작 및 할당
 			int[][] mapTale = new int[lines.length][count];
 			mapTale = initMap(stageMap[stageNumber]);
-
+			// 입력 기능
 			Scanner scanner = new Scanner(System.in);
 			inputKey(scanner, mapTale);
 		}
 	}
-
+	
+	// txt파일 읽어내는 함수
 	public static String readFile(String fileName) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(fileName));
-
 		try {
 			StringBuilder sb = new StringBuilder();
 			String line = reader.readLine();
@@ -417,11 +404,11 @@ public class stage3 {
 			reader.close();
 		}
 	}
-
+	// 전역 변수
 	static int stageNumber = 0;
 	static int turnNumber = 0;
 	static boolean gameOver = false;
-
+	// main
 	public static void main(String[] args) throws IOException {
 
 		String mapInfo = readFile("C:\\Users\\admin\\Desktop\\CodesquadTest\\map.txt");
