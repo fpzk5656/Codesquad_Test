@@ -140,7 +140,7 @@ public class stage3 {
 		// 플레이어 위치 구하기
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < columnGroup[i]; j++) {
-				if (tale1[j][i] == 3) {
+				if (tale1[j][i] == 3 || tale1[j][i] == 6) {
 					playerColumn = j;
 					playerRow = i;
 				}
